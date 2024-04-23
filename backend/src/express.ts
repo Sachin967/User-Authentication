@@ -8,7 +8,7 @@ const expressApp = async (app: Application): Promise<void> => {
      app.use(express.urlencoded({ extended: true, limit: '10mb' }))
      app.use(cookieParser())
      const corsOptions = {
-          origin: ['http://localhost:5173', 'https://userauth.sachinms.fyi'],
+          origin:  'https://userauth.sachinms.fyi',
           credentials: true,
      }
 
