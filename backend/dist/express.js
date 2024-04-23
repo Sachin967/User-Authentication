@@ -19,15 +19,10 @@ const expressApp = (app) => __awaiter(void 0, void 0, void 0, function* () {
     app.use(express_1.default.json({ limit: '10mb' }));
     app.use(express_1.default.urlencoded({ extended: true, limit: '10mb' }));
     app.use((0, cookie_parser_1.default)());
-    // const corsOptions = {
-    //      origin:  'https://userauth.sachinms.fyi',
-    //      credentials: true,
-    // }
-    // app.use(cors(corsOptions))
-    app.use((0, cors_1.default)({
+    const corsOptions = {
         origin: 'https://userauth.sachinms.fyi',
-        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
         credentials: true,
-    }));
+    };
+    app.use((0, cors_1.default)(corsOptions));
 });
 exports.default = expressApp;
