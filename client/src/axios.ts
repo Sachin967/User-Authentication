@@ -1,7 +1,7 @@
 import axios, { AxiosInstance } from 'axios'
 
 // const backend = 'http://localhost:3000/api'
-const backend = 'http://user.sachinms.fyi/api'
+const backend = 'https://user.sachinms.fyi/api'
 
 function createAxiosInstance(baseURL: string, withCredentials: boolean = false): AxiosInstance {
      return axios.create({
