@@ -15,7 +15,7 @@ const expressApp = async (app: Application): Promise<void> => {
      // app.use(cors(corsOptions))
      app.use(
           cors({
-               origin: 'hhttps://userauth.sachinms.fyi',
+               origin: 'https://userauth.sachinms.fyi',
                methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
                credentials: true,
           })
