@@ -16,7 +16,7 @@ interface State {
 
 const SignUp: React.FC = () => {
      const [passwordVisible, setPasswordVisible] = useState<boolean>(false)
-const userLoggedIn: boolean = useSelector((state: RootState) => state.auth.Userisloggedin)
+     const userLoggedIn: boolean = useSelector((state: RootState) => state.auth.Userisloggedin)
      const Navigate = useNavigate()
 
      useEffect(() => {
@@ -25,14 +25,13 @@ const userLoggedIn: boolean = useSelector((state: RootState) => state.auth.Useri
           }
      }, [userLoggedIn, Navigate])
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-         dispatch({
-              type: 'handleinput',
-              field: e.target.name as keyof State, 
-              payload: e.target.value,
-         })
-    }
-
+     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+          dispatch({
+               type: 'handleinput',
+               field: e.target.name as keyof State,
+               payload: e.target.value,
+          })
+     }
 
      const togglePasswordVisibility = () => {
           setPasswordVisible(!passwordVisible)
@@ -61,7 +60,6 @@ const userLoggedIn: boolean = useSelector((state: RootState) => state.auth.Useri
           }
      }
      const [formstate, dispatch] = useReducer(reducer, initialState)
-
 
      const validateForm = () => {
           // Validation logic for each field
@@ -96,26 +94,25 @@ const userLoggedIn: boolean = useSelector((state: RootState) => state.auth.Useri
           return true
      }
 
-    const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
-         e.preventDefault()
-         const isValid: boolean = validateForm()
-         if (isValid) {
-              try {
-                   const response = await users.post('/register', formstate, { withCredentials: true })
-                   console.log(response.status)
-                   const { Id } = response.data
-                   if (response.status === 200) {
-                        console.log(response)
-                        Navigate(`/verifyemail/${Id}`)
-                   }
-              } catch (err) {
-                   console.log(err)
-              }
-         } else {
-              // Handle invalid form case
-         }
-    }
-
+     const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
+          e.preventDefault()
+          const isValid: boolean = validateForm()
+          if (isValid) {
+               try {
+                    const response = await users.post('/register', formstate, { withCredentials: true })
+                    console.log(response.status)
+                    const { Id } = response.data
+                    if (response.status === 200) {
+                         console.log(response)
+                         Navigate(`/verifyemail/${Id}`)
+                    }
+               } catch (err) {
+                    console.log(err)
+               }
+          } else {
+               // Handle invalid form case
+          }
+     }
 
      return (
           <div className="flex  items-center h-screen justify-center">
@@ -124,7 +121,10 @@ const userLoggedIn: boolean = useSelector((state: RootState) => state.auth.Useri
                          <img className="hidden md:block object-contain " src="./signup.png" alt="Signin" />
                     </div>
                     <div>
-                         <form onSubmit={handleSignup} className="border-2  bg-gray-50 rounded-xl  p-7">
+                         <form
+                              onSubmit={handleSignup}
+                              className="border-2 shadow-2xl shadow-[#3A244A] bg-gray-50 rounded-xl  p-7"
+                         >
                               <div className="text-4xl flex justify-between text-[#3A244A] my-3 text-start font-bold mb-4">
                                    <div>
                                         <h1>

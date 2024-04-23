@@ -35,7 +35,7 @@ const Controller = {
                 password: userPassword,
                 contactmode,
                 Otp,
-                salt
+                salt,
             });
             const otpResponse = yield (0, util_1.sendOTP)(email, Otp);
             yield (0, util_1.generateToken)(res, user._id);
@@ -62,11 +62,14 @@ const Controller = {
                 const response = yield model_1.default.findByIdAndUpdate(id, { isVerified: true }, { new: true });
                 if (!response) {
                     res.status(500).json({ status: false, message: 'Failed to update user' });
+                    return;
                 }
                 res.json(response);
+                return;
             }
             else {
                 res.status(400).json({ status: false, message: 'Invalid OTP' });
+                return;
             }
         }
         catch (error) {
@@ -99,6 +102,39 @@ const Controller = {
             console.log(error);
             next(error);
         }
-    }))
+    })),
+    ResendOtp: (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const { id } = req.body;
+            const otp = (0, util_1.generateOTP)();
+            const updatedUser = yield model_1.default.findOneAndUpdate({ _id: id }, { $set: { Otp: otp } }, { new: true });
+            if (!updatedUser) {
+                res.status(404).json({ message: 'User not found' });
+                return;
+            }
+            const otpResponse = yield (0, util_1.sendOTP)(updatedUser.email, updatedUser.Otp);
+            res.json(otpResponse);
+            return;
+        }
+        catch (error) {
+            console.error(error);
+            res.status(500).json({ message: 'Internal Server Error' });
+        }
+    })),
+    logOut: (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        console.log('vannu');
+        try {
+            res.cookie('jwt', '', {
+                httpOnly: true,
+                expires: new Date(0),
+            });
+            res.status(200).json({ status: true, message: 'Logged out' });
+            return;
+        }
+        catch (error) {
+            if (error instanceof Error)
+                res.status(500).json({ message: error.message });
+        }
+    })),
 };
 exports.Controller = Controller;

@@ -8,6 +8,7 @@ const startServer = async () => {
      await dBConnection()
      await expressApp(app)
      app.use('/api', router)
+
      app.listen(process.env.PORT, () => {
           console.log('server runing')
      })

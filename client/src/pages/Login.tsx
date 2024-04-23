@@ -1,70 +1,86 @@
-import { useState } from "react"
-import {  useNavigate } from "react-router-dom"
-import { toast } from "react-toastify"
-import users from "../axios"
-import { useDispatch } from "react-redux"
-import { AuthActions } from "../store/Authslice"
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
+import users from '../axios'
+import { useDispatch, useSelector } from 'react-redux'
+import { AuthActions } from '../store/Authslice'
+import { RootState } from '../store/store'
+import { AxiosResponse } from 'axios'
 
 interface FormState {
      email: string
      password: string
 }
 const Login = () => {
-    const [passwordVisible, setPasswordVisible] = useState(false)
-  const Navigate = useNavigate()
-  const Dispatch = useDispatch()
-    const togglePasswordVisibility = () => {
-         setPasswordVisible(!passwordVisible)
-    }
-const navigate = useNavigate()
-const [formState, setFormState] = useState<FormState>({
-     email: '',
-     password: '',
-})
-        const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-             const { name, value } = e.target
-             setFormState((prevState) => ({
-                  ...prevState,
-                  [name]: value,
-             }))
-        }
-
-        const validateForm = () => {
-             if (!formState.email || !formState.password) {
-                  toast.error('Both fields are required!')
-                  return false
+     const Navigate = useNavigate()
+     const userLoggedIn: boolean = useSelector((state: RootState) => state.auth.Userisloggedin)
+        useEffect(() => {
+             if (userLoggedIn) {
+                  Navigate('/')
              }
-             return true
-        }
-        const handleSignIn = (e: React.FormEvent<HTMLFormElement>) => {
-             e.preventDefault()
+        }, [userLoggedIn, Navigate])
+     const [passwordVisible, setPasswordVisible] = useState(false)
+     const Dispatch = useDispatch()
+     const togglePasswordVisibility = () => {
+          setPasswordVisible(!passwordVisible)
+     }
 
-             const isValid = validateForm()
-             console.log(isValid)
-             if (isValid) {
-                  console.log('hi')
-                     users.post('/login', formState, { withCredentials: true })
-                          .then((res) => {
-                               console.log(res.data)
-                               if (res.data.status === true) {
-                                    Dispatch(AuthActions.Userlogin(res.data))
-                                    Navigate('/')
-                               } else if (res.data.state === true) {
-                                    toast(res.data.msg)
-                                    console.log(res)
-                               } else {
-                                    toast(res.data.msg)
-                               }
-                          })
-                          .catch((error) => {
-                               if (error.response && error.response.status === 401) {
-                                    toast(error.response.data)
-                               } else {
-                                    console.log(error)
-                               }
-                          })
-             }
-        }
+     // const navigate = useNavigate()
+     const [formState, setFormState] = useState<FormState>({
+          email: '',
+          password: '',
+     })
+     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+          const { name, value } = e.target
+          setFormState((prevState) => ({
+               ...prevState,
+               [name]: value,
+          }))
+     }
+
+     const validateForm = () => {
+          if (!formState.email || !formState.password) {
+               toast.error('Both fields are required!')
+               return false
+          }
+          return true
+     }
+     const handleSignIn = async(e: React.FormEvent<HTMLFormElement>) => {
+          e.preventDefault()
+
+          const isValid = validateForm()
+
+          // if (isValid) {
+          //      console.log('hi')
+          //      users.post('/login', formState, { withCredentials: true })
+          //           .then((res) => {
+          //                console.log(res.data)
+          //                if (res.data) {
+          //                     Dispatch(AuthActions.Userlogin(res.data))
+          //                     Navigate('/')
+          //                }  
+          //           })
+          //           .catch((error) => {
+          //               toast.error(error.message)
+          //           })
+          // }
+          if (isValid) {
+               try {
+                    // Send login request
+                    const response: AxiosResponse = await users.post('/login', formState, { withCredentials: true })
+
+                    // Check if login was successful
+                    if (response.data) {
+                         Dispatch(AuthActions.Userlogin(response.data))
+                          Navigate('/')
+                    } else {
+                         toast.error('Login failed. Please check your credentials.')
+                    }
+               } catch (error) {
+                    toast.error('An error occurred during login. Please try again later.')
+               }
+          }
+     }
      return (
           <div className="flex  items-center h-screen justify-center">
                <div className="md:w-[1100px] flex items-center justify-between mr-5">
@@ -72,7 +88,10 @@ const [formState, setFormState] = useState<FormState>({
                          <img className="hidden md:block object-contain " src="./signin.png" alt="Signin" />
                     </div>
                     <div>
-                         <form onSubmit={handleSignIn} className="border-2 bg-gray-50 rounded-xl  p-8">
+                         <form
+                              onSubmit={handleSignIn}
+                              className="border-2 shadow-2xl shadow-[#3A244A] bg-gray-50 rounded-xl  p-8"
+                         >
                               <div className="text-4xl text-[#3A244A] my-3 text-start font-bold mb-4">
                                    <h1>
                                         Fill what we know<span className="text-[#D72638]">!</span>
@@ -85,7 +104,7 @@ const [formState, setFormState] = useState<FormState>({
                                         name="email"
                                         type="text"
                                         placeholder="Email"
-                                        onChange={(e)=>handleChange(e)}
+                                        onChange={(e) => handleChange(e)}
                                         value={formState.email}
                                    />
                               </div>
@@ -95,7 +114,7 @@ const [formState, setFormState] = useState<FormState>({
                                         name="password"
                                         type={passwordVisible ? 'text' : 'password'}
                                         placeholder="Password"
-                                        onChange={(e)=>handleChange(e)}
+                                        onChange={(e) => handleChange(e)}
                                         value={formState.password}
                                    />
                                    <button
@@ -139,7 +158,7 @@ const [formState, setFormState] = useState<FormState>({
                                    Sign In
                               </button>
                               <button
-                                   onClick={() => navigate('/register')}
+                                   onClick={() => Navigate('/register')}
                                    className="bg-[#ffffff] w-full text-[#3A244A] border border-[#3A244A] h-14 rounded-xl"
                               >
                                    Sign Up

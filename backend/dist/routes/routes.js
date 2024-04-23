@@ -9,5 +9,6 @@ const router = express_1.default.Router();
 router.post('/login', controller_1.Controller.authUser);
 router.post('/register', controller_1.Controller.registerUser);
 router.post('/verify', controller_1.Controller.VerifyOtp);
-router.post('/logout');
+router.post('/signout', controller_1.Controller.logOut);
+router.post('/resendotp', controller_1.Controller.ResendOtp);
 exports.default = router;

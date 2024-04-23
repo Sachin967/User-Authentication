@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom'
 
 import { toast } from 'react-toastify'
 import users from '../axios'
+import { useDispatch } from 'react-redux'
+import { AuthActions } from '../store/Authslice'
 
 const VerifyOtp: React.FC = () => {
      const Navigate = useNavigate()
@@ -10,7 +12,7 @@ const VerifyOtp: React.FC = () => {
      const [otp, setOtp] = useState<string | undefined>()
      const [secondsRemaining, setSecondsRemaining] = useState<number>(60)
      const [resendDisabled, setResendDisabled] = useState<boolean>(false)
-
+     const Dispatch = useDispatch()
      const data = {
           otp: otp,
           id: id,
@@ -18,12 +20,11 @@ const VerifyOtp: React.FC = () => {
 
      const handleRegister = (e: React.FormEvent<HTMLFormElement>) => {
           e.preventDefault()
-          users.post('/verifyOtp', data)
+          users.post('/verify', data)
                .then((res) => {
-                    if (res.data.status) {
+                    if (res.data) {
                          Navigate('/')
-                    } else {
-                         toast.error('Recheck OTP')
+                         Dispatch(AuthActions.Userlogin(res.data))
                     }
                })
                .catch((err) => {
@@ -108,4 +109,3 @@ const VerifyOtp: React.FC = () => {
 }
 
 export default VerifyOtp
-

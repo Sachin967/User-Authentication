@@ -73,7 +73,6 @@ const Controller = {
      }),
      VerifyOtp: asyncHandler(async (req: VerifyOTPRequest, res: Response, next: NextFunction) => {
           const { otp, id } = req.body
-
           try {
                const user: UserDocument | null = await User.findById(id)
 
@@ -91,11 +90,13 @@ const Controller = {
 
                     if (!response) {
                          res.status(500).json({ status: false, message: 'Failed to update user' })
+                         return
                     }
-
                     res.json(response)
+                    return
                } else {
                     res.status(400).json({ status: false, message: 'Invalid OTP' })
+                    return
                }
           } catch (error) {
                console.log(error)
@@ -135,20 +136,33 @@ const Controller = {
      }),
      ResendOtp: asyncHandler(async (req: ResendOtpRequest, res: Response) => {
           try {
-            const { id } = req.body
-            const otp = generateOTP()
-            const updatedUser = await User.findOneAndUpdate({ _id: id }, { $set: { Otp: otp } }, { new: true })
+               const { id } = req.body
+               const otp = generateOTP()
+               const updatedUser = await User.findOneAndUpdate({ _id: id }, { $set: { Otp: otp } }, { new: true })
 
-            if (!updatedUser) {
-                  res.status(404).json({ message: 'User not found' })
-                  return
-            }
-            const otpResponse = await sendOTP(updatedUser.email, updatedUser.Otp)
-            res.json(otpResponse)
-            return
+               if (!updatedUser) {
+                    res.status(404).json({ message: 'User not found' })
+                    return
+               }
+               const otpResponse = await sendOTP(updatedUser.email, updatedUser.Otp)
+               res.json(otpResponse)
+               return
           } catch (error) {
-                console.error(error)
-                res.status(500).json({ message: 'Internal Server Error' })
+               console.error(error)
+               res.status(500).json({ message: 'Internal Server Error' })
+          }
+     }),
+     logOut: asyncHandler(async (req: Request, res: Response) => {
+          console.log('vannu')
+          try {
+               res.cookie('jwt', '', {
+                    httpOnly: true,
+                    expires: new Date(0),
+               })
+               res.status(200).json({ status: true, message: 'Logged out' })
+               return
+          } catch (error) {
+               if (error instanceof Error) res.status(500).json({ message: error.message })
           }
      }),
 }
