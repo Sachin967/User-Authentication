@@ -25,7 +25,7 @@ const expressApp = (app) => __awaiter(void 0, void 0, void 0, function* () {
     // }
     // app.use(cors(corsOptions))
     app.use((0, cors_1.default)({
-        origin: 'hhttps://userauth.sachinms.fyi',
+        origin: 'https://userauth.sachinms.fyi',
         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
         credentials: true,
     }));
