@@ -122,11 +122,11 @@ const SignUp: React.FC = () => {
                               <div className="text-4xl flex justify-between text-[#3A244A] my-3 text-start font-bold mb-4">
                                    <div>
                                         <h1>
-                                             Let us know<span className="text-[#D72638]">!</span>
+                                             Let us know<span className="text-[#D72638] ">!</span>
                                         </h1>
                                    </div>
-                                   <div className="flex items-end">
-                                        <Link to={'/login'} className="bg-[#ffffff] text-[#3A244A] text-2xl rounded-xl">
+                                   <div className="flex items-end ms-10">
+                                        <Link to={'/login'} className="bg-[#ffffff] text-[#3A244A] text-xl rounded-xl">
                                              Sign <span className="text-[#D72638]">In</span>
                                         </Link>
                                    </div>
