@@ -1,6 +1,9 @@
 import { useState } from "react"
 import {  useNavigate } from "react-router-dom"
 import { toast } from "react-toastify"
+import users from "../axios"
+import { useDispatch } from "react-redux"
+import { AuthActions } from "../store/Authslice"
 
 interface FormState {
      email: string
@@ -8,7 +11,8 @@ interface FormState {
 }
 const Login = () => {
     const [passwordVisible, setPasswordVisible] = useState(false)
-
+  const Navigate = useNavigate()
+  const Dispatch = useDispatch()
     const togglePasswordVisibility = () => {
          setPasswordVisible(!passwordVisible)
     }
@@ -39,26 +43,26 @@ const [formState, setFormState] = useState<FormState>({
              console.log(isValid)
              if (isValid) {
                   console.log('hi')
-                  //    axios.post('/login', formstate, { withCredentials: true })
-                  //         .then((res) => {
-                  //              console.log(res.data)
-                  //              if (res.data.status === true) {
-                  //                   Dispatch(AuthActions.Userlogin(res.data))
-                  //                   Navigate('/')
-                  //              } else if (res.data.state === true) {
-                  //                   showToast('warning', res.data.msg)
-                  //                   console.log(res)
-                  //              } else {
-                  //                   showToast('error', res.data.msg)
-                  //              }
-                  //         })
-                  //         .catch((error) => {
-                  //              if (error.response && error.response.status === 401) {
-                  //                   showToast('error', error.response.data)
-                  //              } else {
-                  //                   console.log(error)
-                  //              }
-                  //         })
+                     users.post('/login', formState, { withCredentials: true })
+                          .then((res) => {
+                               console.log(res.data)
+                               if (res.data.status === true) {
+                                    Dispatch(AuthActions.Userlogin(res.data))
+                                    Navigate('/')
+                               } else if (res.data.state === true) {
+                                    toast(res.data.msg)
+                                    console.log(res)
+                               } else {
+                                    toast(res.data.msg)
+                               }
+                          })
+                          .catch((error) => {
+                               if (error.response && error.response.status === 401) {
+                                    toast(error.response.data)
+                               } else {
+                                    console.log(error)
+                               }
+                          })
              }
         }
      return (

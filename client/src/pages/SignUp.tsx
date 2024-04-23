@@ -1,251 +1,278 @@
-import axios from "axios";
-import { useReducer, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
-     interface State {
-          firstname: string
-          lastname: string
-          email: string
-          password: string
-          confirmPassword: string
-          contactmode:string
-     }
-const SignUp = () => {
-      const [passwordVisible, setPasswordVisible] = useState<boolean>(false)
+import { useState, useEffect, useReducer } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { useSelector } from 'react-redux'
+import { toast } from 'react-toastify'
+import users from '../axios'
+import { RootState } from '../store/store'
 
-      const togglePasswordVisibility = () => {
-           setPasswordVisible(!passwordVisible)
-      }
-      const Navigate = useNavigate()
- 
-
-      type Action = { type: 'handleinput'; field: keyof State; payload: string }
-
-      const initialState: State = {
-           firstname: '',
-           lastname: '',
-           email: '',
-           password: '',
-           confirmPassword: '',
-           contactmode:''
-      }
-
-      const reducer = (state: State, action: Action) => {
-           switch (action.type) {
-                case 'handleinput':
-                     return {
-                          ...state,
-                          [action.field]: action.payload,
-                     }
-                default:
-                     return state
-           }
-      }
-
-      const [formstate, dispatch] = useReducer(reducer, initialState)
-
-const validateForm = () => {
-     // Validation logic for each field
-     const emailRegex: RegExp = /^\S+@\S+\.\S+/
-
-     // Email format validation
-     if (
-          !formstate.firstname ||
-          !formstate.lastname ||
-          !formstate.email ||
-          !formstate.password ||
-          !formstate.confirmPassword ||
-          !formstate.contactmode
-     ) {
-          toast.error( 'All fields are required.')
-          return false
-     }
-
-     // For instance, for non-empty fields:
-     if (!emailRegex.test(formstate.email)) {
-          toast.error('Invalid email format.')
-          return false
-     }
-
-     // Password match validation
-     if (formstate.password !== formstate.confirmPassword) {
-          toast.error( 'Passwords do not match.')
-          return false
-     }
-     // Other validations as needed...
-
-     return true
+interface State {
+     firstname: string
+     lastname: string
+     email: string
+     password: string
+     confirmPassword: string
+     contactmode: string
 }
 
-const handleSignup = (e: React.FormEvent<HTMLFormElement>) => {
-     e.preventDefault()
-     const isValid: boolean = validateForm()
-     if (isValid) {
-          axios.post('/register', formstate, { withCredentials: true })
-               .then((response) => {
-                    console.log(response.status)
-                    const { Id } = response.data
-                    if (response.status === 200) {
-                         console.log(response)
-                         Navigate(`/verifyOtp/${Id}`)
+const SignUp: React.FC = () => {
+     const [passwordVisible, setPasswordVisible] = useState<boolean>(false)
+const userLoggedIn: boolean = useSelector((state: RootState) => state.auth.Userisloggedin)
+     const Navigate = useNavigate()
+
+     useEffect(() => {
+          if (userLoggedIn) {
+               Navigate('/')
+          }
+     }, [userLoggedIn, Navigate])
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+         dispatch({
+              type: 'handleinput',
+              field: e.target.name as keyof State, 
+              payload: e.target.value,
+         })
+    }
+
+
+     const togglePasswordVisibility = () => {
+          setPasswordVisible(!passwordVisible)
+     }
+
+     type Action = { type: 'handleinput'; field: keyof State; payload: string }
+
+     const initialState: State = {
+          firstname: '',
+          lastname: '',
+          email: '',
+          password: '',
+          confirmPassword: '',
+          contactmode: '',
+     }
+
+     const reducer = (state: State, action: Action) => {
+          switch (action.type) {
+               case 'handleinput':
+                    return {
+                         ...state,
+                         [action.field]: action.payload,
                     }
-               })
-               .catch((err) => console.log(err))
-     } else {
-          // Handle invalid form case
+               default:
+                    return state
+          }
      }
+     const [formstate, dispatch] = useReducer(reducer, initialState)
+
+
+     const validateForm = () => {
+          // Validation logic for each field
+          const emailRegex: RegExp = /^\S+@\S+\.\S+/
+
+          // Email format validation
+          if (
+               !formstate.firstname ||
+               !formstate.lastname ||
+               !formstate.email ||
+               !formstate.password ||
+               !formstate.confirmPassword ||
+               !formstate.contactmode
+          ) {
+               toast.error('All fields are required.')
+               return false
+          }
+
+          // For instance, for non-empty fields:
+          if (!emailRegex.test(formstate.email)) {
+               toast.error('Invalid email format.')
+               return false
+          }
+
+          // Password match validation
+          if (formstate.password !== formstate.confirmPassword) {
+               toast.error('Passwords do not match.')
+               return false
+          }
+          // Other validations as needed...
+
+          return true
+     }
+
+    const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
+         e.preventDefault()
+         const isValid: boolean = validateForm()
+         if (isValid) {
+              try {
+                   const response = await users.post('/register', formstate, { withCredentials: true })
+                   console.log(response.status)
+                   const { Id } = response.data
+                   if (response.status === 200) {
+                        console.log(response)
+                        Navigate(`/verifyemail/${Id}`)
+                   }
+              } catch (err) {
+                   console.log(err)
+              }
+         } else {
+              // Handle invalid form case
+         }
+    }
+
+
+     return (
+          <div className="flex  items-center h-screen justify-center">
+               <div className="md:w-[1100px] flex items-center justify-between mr-5">
+                    <div>
+                         <img className="hidden md:block object-contain " src="./signup.png" alt="Signin" />
+                    </div>
+                    <div>
+                         <form onSubmit={handleSignup} className="border-2  bg-gray-50 rounded-xl  p-7">
+                              <div className="text-4xl flex justify-between text-[#3A244A] my-3 text-start font-bold mb-4">
+                                   <div>
+                                        <h1>
+                                             Let us know<span className="text-[#D72638]">!</span>
+                                        </h1>
+                                   </div>
+                                   <div className="flex items-end">
+                                        <Link to={'/login'} className="bg-[#ffffff] text-[#3A244A] text-2xl rounded-xl">
+                                             Sign <span className="text-[#D72638]">In</span>
+                                        </Link>
+                                   </div>
+                              </div>
+
+                              <div className="my-5">
+                                   <input
+                                        className="border-b border-gray-300 bg-gray-50 py-2 px-3 w-full focus:outline-none"
+                                        name="firstname"
+                                        type="text"
+                                        placeholder="First Name"
+                                        onChange={handleChange}
+                                   />
+                              </div>
+                              <div className="my-5">
+                                   <input
+                                        className="border-b border-gray-300 bg-gray-50 py-2 px-3 w-full focus:outline-none"
+                                        name="lastname"
+                                        type="text"
+                                        placeholder="Last Name"
+                                        onChange={handleChange}
+                                   />
+                              </div>
+                              <div className="my-5">
+                                   <select
+                                        className="border-b border-gray-300 bg-gray-50 py-2 px-3 w-full focus:outline-none"
+                                        name="contactmode"
+                                        id=""
+                                        onChange={handleChange}
+                                   >
+                                        <option value="">Contact Mode</option>
+                                        <option value="Email">Email</option>
+                                   </select>
+                              </div>
+                              <div className="my-5">
+                                   <input
+                                        className="border-b border-gray-300 bg-gray-50 py-2 px-3 w-full focus:outline-none"
+                                        name="email"
+                                        type="email"
+                                        placeholder="Email"
+                                        onChange={handleChange}
+                                   />
+                              </div>
+                              <div className="relative my-6">
+                                   <input
+                                        className="border-b border-gray-300 bg-gray-50 py-2 px-3 w-full focus:outline-none"
+                                        name="password"
+                                        type={passwordVisible ? 'text' : 'password'}
+                                        placeholder="Set Password"
+                                        onChange={handleChange}
+                                   />
+                                   <button
+                                        type="button"
+                                        className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-600"
+                                        onClick={togglePasswordVisibility}
+                                   >
+                                        {passwordVisible ? (
+                                             <svg
+                                                  xmlns="http://www.w3.org/2000/svg"
+                                                  viewBox="0 0 24 24"
+                                                  fill="none"
+                                                  stroke="currentColor"
+                                                  strokeWidth="2"
+                                                  strokeLinecap="round"
+                                                  strokeLinejoin="round"
+                                                  className="w-6 h-6"
+                                             >
+                                                  <path d="M12 4c-4 0-7.2 3.1-7.9 7.3-.1.4-.1.8-.1 1.2C4 16.6 7.6 20 12 20c4.4 0 8-3.4 8-7.5 0-.4 0-.8-.1-1.2-.7-4.2-3.9-7.3-7.9-7.3zM12 17.8c-2.4 0-4.4-1.8-4.7-4 .3-2.1 2.3-4 4.7-4s4.4 1.8 4.7 4c-.3 2.2-2.3 4-4.7 4z" />
+                                                  <circle cx="12" cy="12" r="2" />
+                                             </svg>
+                                        ) : (
+                                             <svg
+                                                  xmlns="http://www.w3.org/2000/svg"
+                                                  viewBox="0 0 24 24"
+                                                  fill="none"
+                                                  stroke="currentColor"
+                                                  strokeWidth="2"
+                                                  strokeLinecap="round"
+                                                  strokeLinejoin="round"
+                                                  className="w-6 h-6"
+                                             >
+                                                  <path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
+                                                  <path d="M9.15 9.15a6 6 0 0 1 0 8.485M23 23l-9-9" />
+                                             </svg>
+                                        )}
+                                   </button>
+                              </div>
+                              <div className="relative my-6">
+                                   <input
+                                        className="border-b border-gray-300 bg-gray-50 py-2 px-3 w-full focus:outline-none"
+                                        name="confirmPassword"
+                                        type={passwordVisible ? 'text' : 'password'}
+                                        placeholder="Retype Password"
+                                        onChange={handleChange}
+                                   />
+                                   <button
+                                        type="button"
+                                        className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-600"
+                                        onClick={togglePasswordVisibility}
+                                   >
+                                        {passwordVisible ? (
+                                             <svg
+                                                  xmlns="http://www.w3.org/2000/svg"
+                                                  viewBox="0 0 24 24"
+                                                  fill="none"
+                                                  stroke="currentColor"
+                                                  strokeWidth="2"
+                                                  strokeLinecap="round"
+                                                  strokeLinejoin="round"
+                                                  className="w-6 h-6"
+                                             >
+                                                  <path d="M12 4c-4 0-7.2 3.1-7.9 7.3-.1.4-.1.8-.1 1.2C4 16.6 7.6 20 12 20c4.4 0 8-3.4 8-7.5 0-.4 0-.8-.1-1.2-.7-4.2-3.9-7.3-7.9-7.3zM12 17.8c-2.4 0-4.4-1.8-4.7-4 .3-2.1 2.3-4 4.7-4s4.4 1.8 4.7 4c-.3 2.2-2.3 4-4.7 4z" />
+                                                  <circle cx="12" cy="12" r="2" />
+                                             </svg>
+                                        ) : (
+                                             <svg
+                                                  xmlns="http://www.w3.org/2000/svg"
+                                                  viewBox="0 0 24 24"
+                                                  fill="none"
+                                                  stroke="currentColor"
+                                                  strokeWidth="2"
+                                                  strokeLinecap="round"
+                                                  strokeLinejoin="round"
+                                                  className="w-6 h-6"
+                                             >
+                                                  <path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
+                                                  <path d="M9.15 9.15a6 6 0 0 1 0 8.485M23 23l-9-9" />
+                                             </svg>
+                                        )}
+                                   </button>
+                              </div>
+
+                              <button className="bg-[#3A244A] my-5 w-full text-white h-14 rounded-xl" type="submit">
+                                   Sign Up
+                              </button>
+                         </form>
+                    </div>
+               </div>
+          </div>
+     )
 }
 
-  return (
-       <div className="flex  items-center h-screen justify-center">
-            <div className="md:w-[1100px] flex items-center justify-between mr-5">
-                 <div>
-                      <img className="hidden md:block object-contain " src="./signup.png" alt="Signin" />
-                 </div>
-                 <div>
-                      <form onSubmit={handleSignup} className="border-2  bg-gray-50 rounded-xl  p-7">
-                           <div className="text-4xl flex justify-between text-[#3A244A] my-3 text-start font-bold mb-4">
-                                <div>
-                                     <h1>
-                                          Let us know<span className="text-[#D72638]">!</span>
-                                     </h1>
-                                </div>
-                                <div className="flex items-end">
-                                     <Link to={'/login'} className="bg-[#ffffff] text-[#3A244A] text-2xl rounded-xl">
-                                          Sign <span className="text-[#D72638]">In</span>
-                                     </Link>
-                                </div>
-                           </div>
-
-                           <div className="my-5">
-                                <input
-                                     className="border-b border-gray-300 bg-gray-50 py-2 px-3 w-full focus:outline-none"
-                                     name="firstname"
-                                     type="text"
-                                     placeholder="First Name"
-                                    //  onChange={}
-                                />
-                           </div>
-                           <div className="my-5">
-                                <input
-                                     className="border-b border-gray-300 bg-gray-50 py-2 px-3 w-full focus:outline-none"
-                                     name="lastname"
-                                     type="text"
-                                     placeholder="Last Name"
-                                />
-                           </div>
-                           <div className="my-5">
-                                <select
-                                     className="border-b border-gray-300 bg-gray-50 py-2 px-3 w-full focus:outline-none"
-                                     name="contactmode"
-                                     id=""
-                                >
-                                     <option value="">Contact Mode</option>
-                                     <option value="Email">Email</option>
-                                </select>
-                           </div>
-                           <div className="my-5">
-                                <input
-                                     className="border-b border-gray-300 bg-gray-50 py-2 px-3 w-full focus:outline-none"
-                                     name="email"
-                                     type="email"
-                                     placeholder="Email"
-                                />
-                           </div>
-                           <div className="relative my-6">
-                                <input
-                                     className="border-b border-gray-300 bg-gray-50 py-2 px-3 w-full focus:outline-none"
-                                     name="password"
-                                     type={passwordVisible ? 'text' : 'password'}
-                                     placeholder="Set Password"
-                                />
-                                <button
-                                     type="button"
-                                     className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-600"
-                                     onClick={togglePasswordVisibility}
-                                >
-                                     {passwordVisible ? (
-                                          <svg
-                                               xmlns="http://www.w3.org/2000/svg"
-                                               viewBox="0 0 24 24"
-                                               fill="none"
-                                               stroke="currentColor"
-                                               strokeWidth="2"
-                                               strokeLinecap="round"
-                                               strokeLinejoin="round"
-                                               className="w-6 h-6"
-                                          >
-                                               <path d="M12 4c-4 0-7.2 3.1-7.9 7.3-.1.4-.1.8-.1 1.2C4 16.6 7.6 20 12 20c4.4 0 8-3.4 8-7.5 0-.4 0-.8-.1-1.2-.7-4.2-3.9-7.3-7.9-7.3zM12 17.8c-2.4 0-4.4-1.8-4.7-4 .3-2.1 2.3-4 4.7-4s4.4 1.8 4.7 4c-.3 2.2-2.3 4-4.7 4z" />
-                                               <circle cx="12" cy="12" r="2" />
-                                          </svg>
-                                     ) : (
-                                          <svg
-                                               xmlns="http://www.w3.org/2000/svg"
-                                               viewBox="0 0 24 24"
-                                               fill="none"
-                                               stroke="currentColor"
-                                               strokeWidth="2"
-                                               strokeLinecap="round"
-                                               strokeLinejoin="round"
-                                               className="w-6 h-6"
-                                          >
-                                               <path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
-                                               <path d="M9.15 9.15a6 6 0 0 1 0 8.485M23 23l-9-9" />
-                                          </svg>
-                                     )}
-                                </button>
-                           </div>
-                           <div className="relative my-6">
-                                <input
-                                     className="border-b border-gray-300 bg-gray-50 py-2 px-3 w-full focus:outline-none"
-                                     name="confirmPassword"
-                                     type={passwordVisible ? 'text' : 'password'}
-                                     placeholder="Retype Password"
-                                />
-                                <button
-                                     type="button"
-                                     className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-600"
-                                     onClick={togglePasswordVisibility}
-                                >
-                                     {passwordVisible ? (
-                                          <svg
-                                               xmlns="http://www.w3.org/2000/svg"
-                                               viewBox="0 0 24 24"
-                                               fill="none"
-                                               stroke="currentColor"
-                                               strokeWidth="2"
-                                               strokeLinecap="round"
-                                               strokeLinejoin="round"
-                                               className="w-6 h-6"
-                                          >
-                                               <path d="M12 4c-4 0-7.2 3.1-7.9 7.3-.1.4-.1.8-.1 1.2C4 16.6 7.6 20 12 20c4.4 0 8-3.4 8-7.5 0-.4 0-.8-.1-1.2-.7-4.2-3.9-7.3-7.9-7.3zM12 17.8c-2.4 0-4.4-1.8-4.7-4 .3-2.1 2.3-4 4.7-4s4.4 1.8 4.7 4c-.3 2.2-2.3 4-4.7 4z" />
-                                               <circle cx="12" cy="12" r="2" />
-                                          </svg>
-                                     ) : (
-                                          <svg
-                                               xmlns="http://www.w3.org/2000/svg"
-                                               viewBox="0 0 24 24"
-                                               fill="none"
-                                               stroke="currentColor"
-                                               strokeWidth="2"
-                                               strokeLinecap="round"
-                                               strokeLinejoin="round"
-                                               className="w-6 h-6"
-                                          >
-                                               <path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
-                                               <path d="M9.15 9.15a6 6 0 0 1 0 8.485M23 23l-9-9" />
-                                          </svg>
-                                     )}
-                                </button>
-                           </div>
-
-                           <button className="bg-[#3A244A] my-5 w-full text-white h-14 rounded-xl" type="submit">
-                                Sign Up
-                           </button>
-                      </form>
-                 </div>
-            </div>
-       </div>
-  )
-};
-export default SignUp;
+export default SignUp
