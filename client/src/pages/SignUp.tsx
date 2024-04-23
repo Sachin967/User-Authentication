@@ -62,10 +62,8 @@ const SignUp: React.FC = () => {
      const [formstate, dispatch] = useReducer(reducer, initialState)
 
      const validateForm = () => {
-          // Validation logic for each field
           const emailRegex: RegExp = /^\S+@\S+\.\S+/
 
-          // Email format validation
           if (
                !formstate.firstname ||
                !formstate.lastname ||
@@ -78,19 +76,15 @@ const SignUp: React.FC = () => {
                return false
           }
 
-          // For instance, for non-empty fields:
           if (!emailRegex.test(formstate.email)) {
                toast.error('Invalid email format.')
                return false
           }
 
-          // Password match validation
           if (formstate.password !== formstate.confirmPassword) {
                toast.error('Passwords do not match.')
                return false
           }
-          // Other validations as needed...
-
           return true
      }
 
@@ -110,7 +104,7 @@ const SignUp: React.FC = () => {
                     console.log(err)
                }
           } else {
-               // Handle invalid form case
+               toast.error('Not valid')
           }
      }
 

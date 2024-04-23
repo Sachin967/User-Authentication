@@ -25,7 +25,6 @@ const Login = () => {
           setPasswordVisible(!passwordVisible)
      }
 
-     // const navigate = useNavigate()
      const [formState, setFormState] = useState<FormState>({
           email: '',
           password: '',
@@ -49,27 +48,10 @@ const Login = () => {
           e.preventDefault()
 
           const isValid = validateForm()
-
-          // if (isValid) {
-          //      console.log('hi')
-          //      users.post('/login', formState, { withCredentials: true })
-          //           .then((res) => {
-          //                console.log(res.data)
-          //                if (res.data) {
-          //                     Dispatch(AuthActions.Userlogin(res.data))
-          //                     Navigate('/')
-          //                }  
-          //           })
-          //           .catch((error) => {
-          //               toast.error(error.message)
-          //           })
-          // }
           if (isValid) {
                try {
-                    // Send login request
                     const response: AxiosResponse = await users.post('/login', formState, { withCredentials: true })
 
-                    // Check if login was successful
                     if (response.data) {
                          Dispatch(AuthActions.Userlogin(response.data))
                           Navigate('/')
