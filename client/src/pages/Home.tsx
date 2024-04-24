@@ -26,7 +26,7 @@ const Home: React.FC = () => {
           <div className="py-5">
                <div className="flex justify-center">
                     <div className="p-5 flex flex-col items-center bg-[#3A244A] w-10/12">
-                         <h1 className="text-3xl  p-4">
+                         <h1 className="text-3xl text-white p-4">
                               Welcome {userdetails?.firstname} {userdetails?.lastname}
                          </h1>
                          <p className="text-center mb-4">
