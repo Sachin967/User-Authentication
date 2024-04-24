@@ -92,7 +92,7 @@ const Controller = {
                          res.status(500).json({ status: false, message: 'Failed to update user' })
                          return
                     }
-                    res.json(response)
+                    res.json({ firstname: response.firstname, lastname: response.lastname, email: response.email })
                     return
                } else {
                     res.status(400).json({ status: false, message: 'Invalid OTP' })
@@ -127,7 +127,11 @@ const Controller = {
                }
 
                await generateToken(res, existingUser._id)
-               res.json({ id: existingUser._id, email: existingUser.email })
+               res.json({
+                    firstname: existingUser.firstname,
+                    lastname: existingUser.lastname,
+                    email: existingUser.email,
+               })
                return
           } catch (error) {
                console.log(error)

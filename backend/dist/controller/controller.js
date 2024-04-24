@@ -64,7 +64,7 @@ const Controller = {
                     res.status(500).json({ status: false, message: 'Failed to update user' });
                     return;
                 }
-                res.json(response);
+                res.json({ firstname: response.firstname, lastname: response.lastname, email: response.email });
                 return;
             }
             else {
@@ -95,7 +95,11 @@ const Controller = {
                 return;
             }
             yield (0, util_1.generateToken)(res, existingUser._id);
-            res.json({ id: existingUser._id, email: existingUser.email });
+            res.json({
+                firstname: existingUser.firstname,
+                lastname: existingUser.lastname,
+                email: existingUser.email,
+            });
             return;
         }
         catch (error) {
